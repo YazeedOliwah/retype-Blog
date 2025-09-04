@@ -1,19 +1,32 @@
 input: .
 output: .retype
 
-url: docs.example.com # Use your website address here
 
-start:
-  # Uncomment the next line to try Retype Pro features
-  # pro: true
 
 branding:
-  title: Project Name
-  label: Docs
+  title: Bl4cK_Viru5
+  label: blog
+  logo: static/logo.png
+
 
 links:
-  - text: Black virus
+  - text: Home
     link: https://retype.com/guides/getting-started/
+    icon: Home 
+    
+  - text: Discord
+    link: https://retype.com/guides/getting-started/
+    icon: static/discord.png  
+
+  - text: Twitter
+    link: https://retype.com/guides/getting-started/
+    icon: static/twitter.png  
+
+  - text: Github
+    link: https://retype.com/guides/getting-started/
+    icon: static/Github.png 
+
 
 footer:
-  copyright: "&copy; Copyright {{ year }}. All rights reserved."
+  allign: center
+  copyright: "&copy; Black Virus {{ year }}. All rights reserved."
