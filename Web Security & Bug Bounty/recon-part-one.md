@@ -1,14 +1,21 @@
+---
+authors:
+  - name: Yazeed Alewah 
+    email: yazeedeliwah@gmail.com
+    avatar: ../static/logo.png 
+
+category: [Bug bounty & Recon]
+date: 2025-08-27 
+---
+
+
+
+
 # Bug Hunting Methodology Part One
 
 ![](img/F1zOKkQX0AId7KQ.jpg)
 
-**Author:** Yazeed Alewah  
-**Date:** August 27, 2025  
-**Read Time:** 8 min read  
 
-**Tags:** Bug bounty, Web security, Recon  
-
----
 
 ## Bug Hunting Methodology Types
 
