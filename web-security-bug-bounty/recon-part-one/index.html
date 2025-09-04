@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.11.0.810304338471">
+
+    <!-- See retype.com -->
+    <meta name="generator" content="Retype 3.11.0">
+
+    <!-- Primary Meta Tags -->
+    <title>Bug Hunting Methodology Part One</title>
+    <meta name="title" content="Bug Hunting Methodology Part One">
+    <meta name="description" content="Author: Yazeed Alewah Date: August 27, 2025 Read Time: 8 min read">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="/web-security-bug-bounty/recon-part-one/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="/web-security-bug-bounty/recon-part-one/">
+    <meta property="og:title" content="Bug Hunting Methodology Part One">
+    <meta property="og:description" content="Author: Yazeed Alewah Date: August 27, 2025 Read Time: 8 min read">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="/web-security-bug-bounty/recon-part-one/">
+    <meta property="twitter:title" content="Bug Hunting Methodology Part One">
+    <meta property="twitter:description" content="Author: Yazeed Alewah Date: August 27, 2025 Read Time: 8 min read">
+
+    <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
+
+    <link href="../../resources/css/retype.css?v=3.11.0.810304338471" rel="stylesheet">
+
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.11.0.810304338471" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/retype.js?v=3.11.0" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.11.0.810304338471" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=3.11.0.810304338471" defer></script>
+</head>
+<body>
+    <div id="retype-app" class="relative text-base antialiased text-base-text bg-base-bg font-body">
+        <div class="absolute bottom-0 left-0" style="top: 5rem; right: 50%"></div>
+    
+        <header id="retype-header" class="sticky top-0 z-30 flex w-full h-16 bg-header-bg border-b border-header-border md:h-20">
+            <div class="container relative flex items-center justify-between pr-6 grow md:justify-start">
+                <!-- Mobile menu button skeleton -->
+                <button v-cloak class="skeleton retype-mobile-menu-button flex items-center justify-center shrink-0 overflow-hidden dark:text-white focus:outline-none rounded-full w-10 h-10 ml-3.5 md:hidden"><svg xmlns="http://www.w3.org/2000/svg" class="mb-px shrink-0" width="24" height="24" viewBox="0 0 24 24" role="presentation" style="margin-bottom: 0px;"><g fill="currentColor"><path d="M2 4h20v2H2zM2 11h20v2H2zM2 18h20v2H2z"></path></g></svg></button>
+                <div v-cloak id="retype-sidebar-left-toggle-button"></div>
+        
+                <!-- Logo -->
+                <div class="flex items-center justify-between h-full py-2 md:w-75">
+                    <div class="flex items-center px-2 md:px-6">
+                        <a id="retype-branding-logo" href="../../" class="flex items-center leading-snug text-2xl">
+                            <span class="w-10 mr-2 grow-0 shrink-0 overflow-hidden">
+                                <img class="max-h-10 dark:hidden md:inline-block" src="../../static/logo.png">
+                                <img class="max-h-10 hidden dark:inline-block" src="../../static/logo.png">
+                            </span>
+                            <span class="dark:text-white font-bold line-clamp-1 md:line-clamp-2">Bl4cK_Viru5</span>
+                        </a><span id="retype-branding-label" class="inline-flex mt-1 px-2 py-1 ml-4 text-xs font-medium leading-none items-center rounded-md bg-branding-label-bg text-branding-label-text ring-1 ring-branding-label-border ring-inset md:inline-block">blog</span>
+                    </div>
+        
+                    <span class="hidden h-8 border-r md:inline-block border-base-border"></span>
+                </div>
+        
+                <div class="flex justify-between md:grow">
+                    <!-- Top Nav -->
+                    <nav id="retype-header-nav" class="hidden md:flex">
+                        <ul class="flex flex-col mb-4 md:pl-16 md:mb-0 md:flex-row md:items-center">
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-header-text font-header-text-weight hover:text-header-text-hover" href="https://retype.com/guides/getting-started/">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
+                                        <g fill="currentColor">
+                                            <path d="M11.03 2.59a1.501 1.501 0 0 1 1.94 0l7.5 6.363a1.5 1.5 0 0 1 .53 1.144V19.5a1.5 1.5 0 0 1-1.5 1.5h-5.75a.75.75 0 0 1-.75-.75V14h-2v6.25a.75.75 0 0 1-.75.75H4.5A1.5 1.5 0 0 1 3 19.5v-9.403c0-.44.194-.859.53-1.144ZM12 3.734l-7.5 6.363V19.5h5v-6.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v6.25h5v-9.403Z"/>
+                                        </g>
+                                    </svg>
+                                    <span>Home</span>
+                                </a>
+                            </li>
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-header-tex font-header-text-weight hover:text-header-text-hover" href="https://retype.com/guides/getting-started/">
+                                    <img class="mb-px mr-1" width="18" alt="" src="../../static/discord.png">
+                                    <span>Discord</span>
+                                </a>
+                            </li>
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-header-tex font-header-text-weight hover:text-header-text-hover" href="https://retype.com/guides/getting-started/">
+                                    <img class="mb-px mr-1" width="18" alt="" src="../../static/twitter.png">
+                                    <span>Twitter</span>
+                                </a>
+                            </li>
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-header-tex font-header-text-weight hover:text-header-text-hover" href="https://retype.com/guides/getting-started/">
+                                    <img class="mb-px mr-1" width="18" alt="" src="../../static/github.png">
+                                    <span>Github</span>
+                                </a>
+                            </li>
+        
+                        </ul>
+                    </nav>
+        
+                    <!-- Header Right Skeleton -->
+                    <div v-cloak class="flex justify-end grow skeleton">
+        
+                        <!-- Search input mock -->
+                        <div class="relative hidden w-40 lg:block lg:max-w-sm lg:ml-auto">
+                            <div class="absolute flex items-center justify-center h-full pl-3 dark:text-dark-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon-base" width="16" height="16" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation" style="margin-bottom: 1px;"><g fill="currentColor" ><path d="M21.71 20.29l-3.68-3.68A8.963 8.963 0 0020 11c0-4.96-4.04-9-9-9s-9 4.04-9 9 4.04 9 9 9c2.12 0 4.07-.74 5.61-1.97l3.68 3.68c.2.19.45.29.71.29s.51-.1.71-.29c.39-.39.39-1.03 0-1.42zM4 11c0-3.86 3.14-7 7-7s7 3.14 7 7c0 1.92-.78 3.66-2.04 4.93-.01.01-.02.01-.02.01-.01.01-.01.01-.01.02A6.98 6.98 0 0111 18c-3.86 0-7-3.14-7-7z" ></path></g></svg>
+                            </div>
+                            <input class="w-full h-10 placeholder-search-placeholder transition-colors duration-200 ease-in bg-search-bg border border-transparent rounded md:text-sm hover:border-search-border-hover focus:outline-none focus:border-search-border-focus" style="padding: 0.625rem 0.75rem 0.625rem 2rem" type="text" placeholder="Search">
+                        </div>
+        
+                        <!-- Mobile search button -->
+                        <div class="flex items-center justify-center w-10 h-10 lg:hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 icon-base" width="20" height="20" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation" style="margin-bottom: 0px;"><g fill="currentColor" ><path d="M21.71 20.29l-3.68-3.68A8.963 8.963 0 0020 11c0-4.96-4.04-9-9-9s-9 4.04-9 9 4.04 9 9 9c2.12 0 4.07-.74 5.61-1.97l3.68 3.68c.2.19.45.29.71.29s.51-.1.71-.29c.39-.39.39-1.03 0-1.42zM4 11c0-3.86 3.14-7 7-7s7 3.14 7 7c0 1.92-.78 3.66-2.04 4.93-.01.01-.02.01-.02.01-.01.01-.01.01-.01.02A6.98 6.98 0 0111 18c-3.86 0-7-3.14-7-7z" ></path></g></svg>
+                        </div>
+        
+                        <!-- Dark mode switch placeholder -->
+                        <div class="w-10 h-10 lg:ml-2"></div>
+        
+                        <!-- History button -->
+                        <div class="flex items-center justify-center w-10 h-10" style="margin-right: -0.625rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 icon-base" width="22" height="22" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation" style="margin-bottom: 0px;"><g fill="currentColor" ><g ><path d="M12.01 6.01c-.55 0-1 .45-1 1V12a1 1 0 00.4.8l3 2.22a.985.985 0 001.39-.2.996.996 0 00-.21-1.4l-2.6-1.92V7.01c.02-.55-.43-1-.98-1z"></path><path d="M12.01 1.91c-5.33 0-9.69 4.16-10.05 9.4l-.29-.26a.997.997 0 10-1.34 1.48l1.97 1.79c.19.17.43.26.67.26s.48-.09.67-.26l1.97-1.79a.997.997 0 10-1.34-1.48l-.31.28c.34-4.14 3.82-7.41 8.05-7.41 4.46 0 8.08 3.63 8.08 8.09s-3.63 8.08-8.08 8.08c-2.18 0-4.22-.85-5.75-2.4a.996.996 0 10-1.42 1.4 10.02 10.02 0 007.17 2.99c5.56 0 10.08-4.52 10.08-10.08.01-5.56-4.52-10.09-10.08-10.09z"></path></g></g></svg>
+                        </div>
+                    </div>
+        
+                    <div v-cloak class="flex justify-end grow">
+                        <div id="retype-mobile-search-button"></div>
+                        <doc-search-desktop></doc-search-desktop>
+        
+                        <doc-theme-switch class="lg:ml-2"></doc-theme-switch>
+                        <doc-history></doc-history>
+                    </div>
+                </div>
+            </div>
+        </header>
+    
+    
+        <div id="retype-container" class="container relative flex bg-white">
+            <!-- Sidebar Skeleton -->
+            <div v-cloak class="fixed flex flex-col shrink-0 duration-300 ease-in-out bg-sidebar-left-bg border-sidebar-left-border sidebar top-20 w-75 border-r h-screen md:sticky transition-transform skeleton">
+            
+                <div class="flex items-center h-16 px-6">
+                    <input class="w-full h-8 px-3 py-2 transition-colors duration-200 ease-linear bg-filter-bg border border-filter-border rounded shadow-none text-sm focus:outline-none focus:border-filter-border-focus" type="text" placeholder="Filter">
+                </div>
+            
+                <div class="pl-6 mt-1 mb-4">
+                    <div class="w-32 h-3 mb-4 bg-skeleton-bg rounded-full loading"></div>
+                    <div class="w-48 h-3 mb-4 bg-skeleton-bg rounded-full loading"></div>
+                    <div class="w-40 h-3 mb-4 bg-skeleton-bg rounded-full loading"></div>
+                    <div class="w-32 h-3 mb-4 bg-skeleton-bg rounded-full loading"></div>
+                    <div class="w-48 h-3 mb-4 bg-skeleton-bg rounded-full loading"></div>
+                    <div class="w-40 h-3 mb-4 bg-skeleton-bg rounded-full loading"></div>
+                </div>
+            
+                <div class="shrink-0 mt-auto bg-transparent dark:border-base-border">
+                    <a class="flex items-center justify-center flex-nowrap h-16 text-gray-350 dark:text-dark-400 hover:text-gray-600 dark:hover:text-dark-300 transition-colors duration-150 ease-in docs-powered-by" target="_blank" href="https://retype.com/" rel="noopener">
+                        <span class="text-xs whitespace-nowrap">Powered by</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-2" fill="currentColor" width="96" height="20" overflow="visible"><path d="M0 0v20h13.59V0H0zm11.15 17.54H2.44V2.46h8.71v15.08zM15.8 20h2.44V4.67L15.8 2.22zM20.45 6.89V20h2.44V9.34z"/><g><path d="M40.16 8.44c0 1.49-.59 2.45-1.75 2.88l2.34 3.32h-2.53l-2.04-2.96h-1.43v2.96h-2.06V5.36h3.5c1.43 0 2.46.24 3.07.73s.9 1.27.9 2.35zm-2.48 1.1c.26-.23.38-.59.38-1.09 0-.5-.13-.84-.4-1.03s-.73-.28-1.39-.28h-1.54v2.75h1.5c.72 0 1.2-.12 1.45-.35zM51.56 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92h4.74v1.83h-6.79V5.36h6.64zM60.09 7.15v7.48h-2.06V7.15h-2.61V5.36h7.28v1.79h-2.61zM70.81 14.64h-2.06v-3.66l-3.19-5.61h2.23l1.99 3.45 1.99-3.45H74l-3.19 5.61v3.66zM83.99 6.19c.65.55.97 1.4.97 2.55s-.33 1.98-1 2.51-1.68.8-3.04.8h-1.23v2.59h-2.06V5.36h3.26c1.42 0 2.45.28 3.1.83zm-1.51 3.65c.25-.28.37-.69.37-1.22s-.16-.92-.48-1.14c-.32-.23-.82-.34-1.5-.34H79.7v3.12h1.38c.68 0 1.15-.14 1.4-.42zM95.85 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92H96v1.83h-6.79V5.36h6.64z"/></g></svg>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Sidebar component -->
+            <doc-sidebar v-cloak>
+                <template #sidebar-footer>
+                    <div class="shrink-0 mt-auto border-t md:bg-transparent md:border-none dark:border-base-border">
+            
+                        <div class="py-3 px-6 md:hidden border-b dark:border-base-border">
+                            <nav>
+                                <ul class="flex flex-wrap justify-center items-center">
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-header-text font-header-text-weight hover:text-header-text-hover" href="https://retype.com/guides/getting-started/">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mb-px mr-1" width="18" height="18" viewBox="0 0 24 24" role="presentation">
+                                                <g fill="currentColor">
+                                                    <path d="M11.03 2.59a1.501 1.501 0 0 1 1.94 0l7.5 6.363a1.5 1.5 0 0 1 .53 1.144V19.5a1.5 1.5 0 0 1-1.5 1.5h-5.75a.75.75 0 0 1-.75-.75V14h-2v6.25a.75.75 0 0 1-.75.75H4.5A1.5 1.5 0 0 1 3 19.5v-9.403c0-.44.194-.859.53-1.144ZM12 3.734l-7.5 6.363V19.5h5v-6.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v6.25h5v-9.403Z"/>
+                                                </g>
+                                            </svg>
+                                            <span>Home</span>
+                                        </a>
+                                    </li>
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-header-tex font-header-text-weight hover:text-header-text-hover" href="https://retype.com/guides/getting-started/">
+                                            <img class="mb-px mr-1" width="18" alt="" src="../../static/discord.png">
+                                            <span>Discord</span>
+                                        </a>
+                                    </li>
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-header-tex font-header-text-weight hover:text-header-text-hover" href="https://retype.com/guides/getting-started/">
+                                            <img class="mb-px mr-1" width="18" alt="" src="../../static/twitter.png">
+                                            <span>Twitter</span>
+                                        </a>
+                                    </li>
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-header-tex font-header-text-weight hover:text-header-text-hover" href="https://retype.com/guides/getting-started/">
+                                            <img class="mb-px mr-1" width="18" alt="" src="../../static/github.png">
+                                            <span>Github</span>
+                                        </a>
+                                    </li>
+            
+                                </ul>
+                            </nav>
+                        </div>
+            
+                        <a class="flex items-center justify-center flex-nowrap h-16 text-gray-350 dark:text-dark-400 hover:text-gray-600 dark:hover:text-dark-300 transition-colors duration-150 ease-in docs-powered-by" target="_blank" href="https://retype.com/" rel="noopener">
+                            <span class="text-xs whitespace-nowrap">Powered by</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-2" fill="currentColor" width="96" height="20" overflow="visible"><path d="M0 0v20h13.59V0H0zm11.15 17.54H2.44V2.46h8.71v15.08zM15.8 20h2.44V4.67L15.8 2.22zM20.45 6.89V20h2.44V9.34z"/><g><path d="M40.16 8.44c0 1.49-.59 2.45-1.75 2.88l2.34 3.32h-2.53l-2.04-2.96h-1.43v2.96h-2.06V5.36h3.5c1.43 0 2.46.24 3.07.73s.9 1.27.9 2.35zm-2.48 1.1c.26-.23.38-.59.38-1.09 0-.5-.13-.84-.4-1.03s-.73-.28-1.39-.28h-1.54v2.75h1.5c.72 0 1.2-.12 1.45-.35zM51.56 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92h4.74v1.83h-6.79V5.36h6.64zM60.09 7.15v7.48h-2.06V7.15h-2.61V5.36h7.28v1.79h-2.61zM70.81 14.64h-2.06v-3.66l-3.19-5.61h2.23l1.99 3.45 1.99-3.45H74l-3.19 5.61v3.66zM83.99 6.19c.65.55.97 1.4.97 2.55s-.33 1.98-1 2.51-1.68.8-3.04.8h-1.23v2.59h-2.06V5.36h3.26c1.42 0 2.45.28 3.1.83zm-1.51 3.65c.25-.28.37-.69.37-1.22s-.16-.92-.48-1.14c-.32-.23-.82-.34-1.5-.34H79.7v3.12h1.38c.68 0 1.15-.14 1.4-.42zM95.85 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92H96v1.83h-6.79V5.36h6.64z"/></g></svg>
+                        </a>
+                    </div>
+                </template>
+            </doc-sidebar>
+    
+            <div class="grow min-w-0 bg-body-bg">
+                <!-- Render "toolbar" template here on api pages --><!-- Render page content -->
+                <div class="flex">
+                    <div id="retype-main" class="min-w-0 p-4 grow md:px-16">
+                        <main class="relative pb-12 lg:pt-2">
+                            <div class="retype-markdown" id="retype-content">
+                                <!-- Rendered if sidebar right is enabled -->
+                                <div id="retype-sidebar-right-toggle"></div>
+                                <!-- Page content  -->
+<doc-anchor-target id="bug-hunting-methodology-part-one" class="break-words">
+    <h1>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#bug-hunting-methodology-part-one">#</doc-anchor-trigger>
+        <span>Bug Hunting Methodology Part One</span>
+    </h1>
+</doc-anchor-target>
+<p><figure class="content-center">
+    <img src="img/f1zokkqx0aid7kq.jpg" alt="" class="rounded-image-rounded border-image-border border-image-border-width" />
+    <figcaption class="caption"></figcaption>
+</figure>
+</p>
+<p><strong>Author:</strong> Yazeed Alewah<br />
+<strong>Date:</strong> August 27, 2025<br />
+<strong>Read Time:</strong> 8 min read</p>
+<p><strong>Tags:</strong> Bug bounty, Web security, Recon</p>
+<hr>
+<doc-anchor-target id="bug-hunting-methodology-types">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#bug-hunting-methodology-types">#</doc-anchor-trigger>
+        <span>Bug Hunting Methodology Types</span>
+    </h2>
+</doc-anchor-target>
+<doc-anchor-target id="1-full-manual-methodology">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#1-full-manual-methodology">#</doc-anchor-trigger>
+        <span>1) Full Manual Methodology</span>
+    </h3>
+</doc-anchor-target>
+<p>The full manual method is for those who love understanding the application deeply. Hunters using this approach dive deep into a target, manually exploring every request, response, and parameter to find vulnerabilities. It’s time-intensive but allows for a thorough understanding of the target, often revealing issues automated tools might miss.</p>
+<blockquote>
+<p><strong>Some hunters using this methodology:</strong></p>
+<ul>
+<li>Sohaib Nacri: <a href="https://x.com/h4x0r_dz?lang=en">@h4x0r_dz</a></li>
+</ul>
+</blockquote>
+<doc-anchor-target id="2-the-5050-methodology">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#2-the-5050-methodology">#</doc-anchor-trigger>
+        <span>2) The 50/50 Methodology</span>
+    </h3>
+</doc-anchor-target>
+<p>The 50/50 method blends manual and automated techniques. Start with reconning the application, finding untouched endpoints, then exploring the app and understanding it.</p>
+<blockquote>
+<p><strong>Some hunters using this methodology:</strong></p>
+<ul>
+<li>Orwa Atyat: <a href="https://x.com/GodfatherOrwa">@GodfatherOrwa</a></li>
+<li>Me XD: <a href="https://x.com/Yazeed_oliwah">@YazeedOliwah</a></li>
+</ul>
+</blockquote>
+<doc-anchor-target id="3-fully-automated-methodology">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#3-fully-automated-methodology">#</doc-anchor-trigger>
+        <span>3) Fully Automated Methodology</span>
+    </h3>
+</doc-anchor-target>
+<p>In this methodology, hunters automate everything—from reconnaissance to vulnerability scanning using public/custom scripts to cover massive attack surfaces quickly. While it may miss nuanced bugs, it’s perfect for identifying common vulnerabilities across large systems.</p>
+<blockquote>
+<p><strong>Some hunters using this methodology:</strong></p>
+<ul>
+<li>Eric: <a href="https://x.com/codecancare">@todayisnew</a></li>
+</ul>
+</blockquote>
+<doc-anchor-target id="4-0day-hunting">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#4-0day-hunting">#</doc-anchor-trigger>
+        <span>4) 0Day Hunting</span>
+    </h3>
+</doc-anchor-target>
+<p>The 0Day Hunter method focuses on finding vulnerabilities in widely used software like Jenkins, WordPress, or Jira. These hunters monitor for newly disclosed CVEs or zero-days, then report them to programs using that software.</p>
+<blockquote>
+<p><strong>Some hunters using this methodology:</strong></p>
+<ul>
+<li>Shubs: <a href="https://x.com/infosec_au">@shubs</a></li>
+</ul>
+</blockquote>
+<doc-anchor-target id="recon-phase">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#recon-phase">#</doc-anchor-trigger>
+        <span>Recon Phase</span>
+    </h2>
+</doc-anchor-target>
+<p>We all know that reconnaissance, or recon, is critical in bug bounty hunting and web application pentesting. In fact, it’s often considered the most important phase. Why? Because effective recon sets the stage for everything else. Bug bounty hunters who master recon consistently uncover hidden assets, untouched features, and obscure endpoints that others overlook. This gives them a massive edge, significantly boosting their chances of finding high-impact security vulnerabilities and earning substantial rewards.</p>
+<doc-anchor-target id="what-is-recon">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#what-is-recon">#</doc-anchor-trigger>
+        <span><strong>What is Recon?</strong></span>
+    </h4>
+</doc-anchor-target>
+<p>Reconnaissance, in the context of bug bounty hunting, is the process of gathering as much information as possible about a target within its defined scope. Think of it as mapping out the battlefield before engaging. It involves identifying domains, subdomains, IP ranges, software, endpoints, and even forgotten or misconfigured assets that a company might not even realize are publicly accessible. The goal is to build a comprehensive picture of the target’s attack surface—every request, response, and parameter where a vulnerability might hide. The better your recon, the more likely you are to find unique bugs that others miss.</p>
+<p><strong>NOTE:</strong> Recon is not just collecting subdomains and IPs like many hunters think. It also involves trying to understand the application workflow and how it works.</p>
+<doc-anchor-target id="scope-based-recon">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#scope-based-recon">#</doc-anchor-trigger>
+        <span>Scope-Based Recon</span>
+    </h2>
+</doc-anchor-target>
+<p>Scope-based recon involves adjusting your reconnaissance methodology based on the target’s defined scope in a bug bounty program. The best mind map I’ve stumbled upon for this is from the legend <a href="https://xmind.app/m/hKKexj">@harshbothra_</a>.</p>
+<doc-anchor-target id="small-scope">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#small-scope">#</doc-anchor-trigger>
+        <span>Small Scope</span>
+    </h3>
+</doc-anchor-target>
+<p>A small scope is all about honing in on a single domain or URL like <code v-pre>target.com</code> or <code v-pre>sub.target.com</code> with no wildcard or subdomain inclusion. This is your chance to go deep, not wide, with a targeted recon effort.</p>
+<p><strong>Example:</strong> <a href="https://bugcrowd.com/engagements/underarmour-corp">Under Armour Corp</a><br />
+<figure class="content-center">
+    <img src="img/underarm.png" alt="" class="rounded-image-rounded border-image-border border-image-border-width" />
+    <figcaption class="caption"></figcaption>
+</figure>
+</p>
+<doc-anchor-target id="medium-scope">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#medium-scope">#</doc-anchor-trigger>
+        <span>Medium Scope</span>
+    </h3>
+</doc-anchor-target>
+<p>A medium scope steps it up with subdomains or a wildcard (e.g., <code v-pre>*.target.com</code>) and related assets. This calls for a broader approach, blending automation to cover ground with manual effort to dig into the good stuff.</p>
+<p><strong>Example:</strong> <a href="https://bugcrowd.com/engagements/justeattakeaway">Just Eat Takeaway</a><br />
+<figure class="content-center">
+    <img src="img/takeaway.png" alt="Just Eat Takeaway" class="rounded-image-rounded border-image-border border-image-border-width" />
+    <figcaption class="caption">Just Eat Takeaway</figcaption>
+</figure>
+</p>
+<doc-anchor-target id="large-scope">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#large-scope">#</doc-anchor-trigger>
+        <span>Large Scope</span>
+    </h3>
+</doc-anchor-target>
+<p>A large scope is the big leagues—covering an entire organization, including related domains, acquisitions, IPs, and assets. This is the broadest and most complex challenge, demanding heavy OSINT, automation, and some manual testing.</p>
+<p><strong>Example:</strong> <a href="https://bugcrowd.com/engagements/fis">Fisglobal</a><br />
+<figure class="content-center">
+    <img src="img/fis.png" alt="Fisglobal" class="rounded-image-rounded border-image-border border-image-border-width" />
+    <figcaption class="caption">Fisglobal</figcaption>
+</figure>
+</p>
+<p><strong>NOTE:</strong> I’ll break down the full methodology covering all scopes (technically a large scope XD) with step-by-step techniques, tools, and pro tips. Whether you’re a newbie or a seasoned pro, this will level up your recon game.</p>
+<doc-anchor-target id="asn--cidr-recon">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#asn--cidr-recon">#</doc-anchor-trigger>
+        <span>ASN / CIDR Recon</span>
+    </h2>
+</doc-anchor-target>
+<doc-anchor-target id="whats-that">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#whats-that">#</doc-anchor-trigger>
+        <span>What&#x27;s That?</span>
+    </h3>
+</doc-anchor-target>
+<p><strong>ASN (Autonomous System Numbers):</strong> A unique number assigned to an organization (think big companies like Google, Apple, or your target company) that controls a chunk of IP addresses. This number helps route traffic across the web, and it’s gold for recon because it tells you which IP ranges a company owns.</p>
+<p><strong>CIDR:</strong> Shorthand for representing those IP ranges. Instead of listing every single IP, it uses a prefix like <code v-pre>192.0.2.0/24</code> to define a block. The <code v-pre>/24</code> part means 256 IPs (from <code v-pre>192.0.2.0</code> to <code v-pre>192.0.2.255</code>).</p>
+<doc-anchor-target id="how-to-collect-ips-and-subdomains-from-asn--cidr">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-to-collect-ips-and-subdomains-from-asn--cidr">#</doc-anchor-trigger>
+        <span>How to Collect IPs and Subdomains from ASN / CIDR?</span>
+    </h3>
+</doc-anchor-target>
+<p>Here’s how you can turn ASN and CIDR data into a list of IPs.</p>
+<doc-anchor-target id="step-1-find-the-asn">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#step-1-find-the-asn">#</doc-anchor-trigger>
+        <span>Step 1: Find the ASN</span>
+    </h4>
+</doc-anchor-target>
+<p>Start by hunting down the target’s ASN. Big organizations usually have their own, and you can sniff it out with tools like:</p>
+<ul>
+<li><a href="https://bgp.he.net/">bgp.he.net</a>: Search the company name (e.g., “Facebook”) to find their ASN (like <code v-pre>AS32934</code>).<br />
+<img src="img/asn1.png" alt="ASN Example" /></li>
+</ul>
+<doc-anchor-target id="step-2-extract-cidr-ranges">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#step-2-extract-cidr-ranges">#</doc-anchor-trigger>
+        <span>Step 2: Extract CIDR Ranges</span>
+    </h4>
+</doc-anchor-target>
+<p>Once you’ve got the ASN, grab the CIDR blocks. Tools like <code v-pre>bgp.he.net</code>, <code v-pre>whois</code>, or <code v-pre>asnmap</code> can pull these.</p>
+<ul>
+<li><p><a href="https://bgp.he.net/">bgp.he.net</a>: After searching the company name, click on the ASN number to find CIDRs.<br />
+<img src="img/asn2.png" alt="CIDR Example" /></p>
+<p><img src="img/asn3.png" alt="CIDR " /></p>
+</li>
+<li><p><a href="">whois</a>:</p>
+</li>
+</ul>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash">whois -h whois.radb.net -- '-i origin AS32934' | grep -Eo &quot;([0-9.]+){4}/[0-9]+&quot; | uniq
+</code></pre>
+</doc-codeblock></div>
+<ul>
+<li><a href="github.com/projectdiscovery/asnmap">asnmap</a>:</li>
+</ul>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash"> echo ASN | asnmap</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="step-3-generate-ip-lists">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#step-3-generate-ip-lists">#</doc-anchor-trigger>
+        <span>Step 3: Generate IP Lists</span>
+    </h4>
+</doc-anchor-target>
+<p>Now, turn those CIDR blocks into individual IPs. Use prips, masscan, nmap:</p>
+<ul>
+<li><a href="">prips</a>:</li>
+</ul>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash"> for i in $(cat cidr.txt);do prips$i &gt;&gt; ip.txt;done</code></pre>
+</doc-codeblock></div>
+<ul>
+<li><a href="https://github.com/robertdavidgraham/masscan">masscan</a>:</li>
+</ul>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash"> masscan-p8080,8001,3389,8009,1311,2480,4444,4445,3333,4567,5000,5001,5104,5800,7000,7001,7002,8008,8042,8088,8222,8243,8280,8281,8333,8530,8531,8887, 8888,8443,8834,9080,9443,9981,12043,12046,16080,18091,10443,18092,1010,1311,2082,2087,2095,2096,3000,3128,4243,4711,4712,4993,5108,6543,7396,7474,8000,8001,8008,8014,8069,8080,8081, 8090,8091,8118,8088,8123,8172,8500,8880,8800,8983,9000,9043,9060,9090,9091,9200,9800,12443,20720,28017,0-1024 -iL cidr.txt -oL masscan.txt</code></pre>
+</doc-codeblock></div>
+<ul>
+<li><a href="https://nmap.org/">nmap</a>:</li>
+</ul>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash"> nmap -T4 -Pn -p 80,4443,4080,443 --script=ssl-cert -iL cidr.txt -oX site-cidr-ssl-cert-scanned.xml --open</code></pre>
+</doc-codeblock></div>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash">nmap -T4 -Pn -p 80,4443,4080,443 --script=banner -iL cidr.txt -oX site-cidr-banner-scanned.xml --open</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="step-4-extra-enumeration">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#step-4-extra-enumeration">#</doc-anchor-trigger>
+        <span>Step 4: Extra Enumeration</span>
+    </h4>
+</doc-anchor-target>
+<p>we can also use shodan, urlscan and amass to find cool stuff</p>
+<blockquote>
+<p><a href="https://www.shodan.io/">shodan</a>: asn:AS0000</p>
+</blockquote>
+<blockquote>
+<p><a href="https://www.shodan.io/">shodan</a>: cidr:xxx.xxx.x.x/24</p>
+</blockquote>
+<blockquote>
+<p><a href="https://www.shodan.io/">shodan</a>: net:xxx.xxx.x.x/24</p>
+</blockquote>
+<blockquote>
+<p><a href="https://urlscan.io/">urlscan</a>: asn:As10001</p>
+</blockquote>
+<doc-anchor-target id="domains-subdomains-and-port-scanning">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#domains-subdomains-and-port-scanning">#</doc-anchor-trigger>
+        <span>Domains, Subdomains, and Port Scanning</span>
+    </h2>
+</doc-anchor-target>
+<p>Let’s start with the basics. A <strong>root domain</strong> is the main or top-level domain of a website. For example, <code v-pre>target.com</code> or <code v-pre>target.cn</code> would be the root domain of a website.</p>
+<p>A <strong>subdomain</strong> is a separate section of a website that is accessed through a prefix before the root domain, for example, <code v-pre>www.target.com</code> or <code v-pre>admin.target.com</code>.</p>
+<doc-anchor-target id="step-1-discover-domains">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#step-1-discover-domains">#</doc-anchor-trigger>
+        <span>Step 1: Discover Domains</span>
+    </h3>
+</doc-anchor-target>
+<p>Let’s start with domain enumeration. First, you need to track down the target’s trade name (the official company name). Here’s how to nail it:</p>
+<ul>
+<li><p>Check the Main Website: Head to the target’s site, scroll to the footer, and look for the © symbol. It often lists the trade name (e.g., “© 2025 Target Corp”).<br />
+<img src="img/tradename.png" alt="Trade Name" /></p>
+</li>
+<li><p>Inspect the Certificate: Click the lock icon in your browser, select “Connection is secure,” then “View Certificate.” Check the “Organization” field for the trade name.</p>
+</li>
+</ul>
+<p>
+<figure>
+    <div class="relative w-full mb-6 overflow-hidden pt-9/16">
+        <iframe class="w-full h-full border-0 absolute inset-0" src="img/tradename2.mp4" allowfullscreen></iframe>
+    </div>
+</figure>
+Now visit <a href="https://crt.sh/">crt.sh</a>, enter the trade name, copy the domains, and save them to <code v-pre>domain.txt</code>.</p>
+<p><figure class="content-center">
+    <img src="img/tradename.png" alt="Trade Name" class="rounded-image-rounded border-image-border border-image-border-width" />
+    <figcaption class="caption">Trade Name</figcaption>
+</figure>
+</p>
+<doc-anchor-target id="step-2-enumerate-subdomains">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#step-2-enumerate-subdomains">#</doc-anchor-trigger>
+        <span>Step 2: Enumerate Subdomains</span>
+    </h3>
+</doc-anchor-target>
+<p>Subdomains are where the real action is. Use these tools to map them out:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash">subfinder -dL domains.txt -o subfinder.txt</code></pre>
+</doc-codeblock></div>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash"> amass enum -passive -norecursive -noalts -df domains.txt -o subdomains.txt</code></pre>
+</doc-codeblock></div>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash"> cat domains.txt | assetfinder --subs-only &gt;&gt; assetfinder.txt</code></pre>
+</doc-codeblock></div>
+<p>you can add/replace your tools also !</p>
+<p><strong>Level Up Your Hunt</strong>: Take your initial subdomain list (e.g., first-list-subdomain.txt) and send it back into Amass . This recursive trick uncovers deeper layers</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash"> amass -passive -norecursive -noalts -df first-list-subdomain -o Finalsubdomain.txt</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="step-3-port-scan">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#step-3-port-scan">#</doc-anchor-trigger>
+        <span>Step 3: Port Scan</span>
+    </h3>
+</doc-anchor-target>
+<p>We want to scan all ports on your subdomains and IPs (from ASN/CIDR recon) to expose that massive attack surface.</p>
+<p><strong>Scan for Subdomains:</strong></p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash">nabbu -list subdomain.txt -exclude-ports 80,443 -top-ports 1000 -o ports-SUBS.txt</code></pre>
+</doc-codeblock></div>
+<p><strong>Scan for IPs:</strong></p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash">nabbu -list ip.txt -exclude-ports 80,443 -top-ports 1000 -o ports-IP.txt</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="filter-results">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#filter-results">#</doc-anchor-trigger>
+        <span>Filter Results</span>
+    </h3>
+</doc-anchor-target>
+<p>Let’s polish those results and focus on web services. I’ll concatenate subdomain/IP lists and ports into one mega-list, then split them for screenshots and tech detection:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash">cat subdomain | httpx -o live-screenshoot-subs.txt
+cat subdomain | httpx -sc -cl -title -td -o live-subs.txt</code></pre>
+</doc-codeblock></div>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash">cat ip.txt | httpx -o live-screenshoot-ip.txt
+cat ip.txt | httpx -sc -cl -title -td -o live-ip.txt </code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="taming-the-chaos-with-large-targets">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#taming-the-chaos-with-large-targets">#</doc-anchor-trigger>
+        <span>Taming the Chaos with Large Targets</span>
+    </h2>
+</doc-anchor-target>
+<p><strong>So Far We Have:</strong></p>
+<ul>
+<li>Domains</li>
+<li>Subdomains</li>
+<li>IP Addresses</li>
+<li>Ports</li>
+</ul>
+<p>With a large target, tracking all this can get wild! Now, we need to zero in on our targets of interest using technology detection and screenshots from <code v-pre>live-subs.txt</code> and <code v-pre>live-ip.txt</code>. Let’s refine our hunt:</p>
+<ul>
+<li><strong>Tech Hunting:</strong> Dive into the tech stack you’re interested in—WordPress, MySQL, PHP, or whatever you’re interested in. Example: <code v-pre>cat live-subs.txt | grep -i &quot;wordpress&quot;</code> to find WordPress.</li>
+<li><strong>Subdomain Patterns:</strong> Search for juicy subdomains like <code v-pre>admin.target.com</code>, <code v-pre>dev.target.com</code>, or <code v-pre>stage.target.com</code>. These often hide login pages or test environments.</li>
+<li><strong>Screenshot Everything:</strong> Visiting every subdomain manually is a grind—and some might not even make sense at first glance. That’s why we will screenshot everything. Run <code v-pre>gowitness scan file -f live-subs.txt --write-db</code> to snap screenshots of all live subdomains. Do the same for IPs.</li>
+<li><strong>Filter Like a Pro:</strong> Browse the screenshots folder to spot anomalies—login pages, outdated CMS versions, or misconfigs.</li>
+</ul>
+<p>In Part 2, we’ll level up your skills with advanced recon techniques like vhost enumeration, favicon analysis, URL discovery, and Dorking.</p>
+<doc-anchor-target id="enjoyed-this">
+    <h1>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#enjoyed-this">#</doc-anchor-trigger>
+        <span>Enjoyed this?</span>
+    </h1>
+</doc-anchor-target>
+<p>Follow me on Twitter or Instagram for more hands-on bug bounty tips, fresh exploit case studies, and red team/pentest content.</p>
+
+                                
+                                <!-- Required only on API pages -->
+                                <doc-toolbar-member-filter-no-results></doc-toolbar-member-filter-no-results>
+                            </div>
+                            <footer id="retype-content-footer" class="clear-both">
+                            
+                                <nav id="retype-nextprev" class="print:hidden flex mt-14">
+                                    <div class="w-1/2">
+                                        <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-body-link border border-base-border hover:border-base-border-hover rounded-r rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../../red-team-/persistence/test/">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19 11H7.41l5.29-5.29a.996.996 0 10-1.41-1.41l-7 7a1 1 0 000 1.42l7 7a1.024 1.024 0 001.42-.01.996.996 0 000-1.41L7.41 13H19c.55 0 1-.45 1-1s-.45-1-1-1z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
+                                            <span>
+                                                <span class="block text-xs font-normal text-base-text-muted">Previous</span>
+                                                <span class="block mt-1">Test</span>
+                                            </span>
+                                        </a>
+                                    </div>
+                            
+                                    <div class="w-1/2">
+                                    </div>
+                                </nav>
+                            </footer>
+                        </main>
+                
+                        <div id="retype-page-footer" class="print:border-none border-t border-base-border pt-6 mb-8">
+                            <footer class="flex flex-wrap items-center justify-between print:justify-center">
+                                <div id="retype-footer-links" class="print:hidden">
+                                    <ul class="flex flex-wrap items-center text-sm">
+                                    </ul>
+                                </div>
+                                <div id="retype-copyright" class="print:justify-center py-2 text-footer-text font-footer-link-weight text-sm leading-relaxed"><p>© Black Virus 2025. All rights reserved.</p></div>
+                            </footer>
+                        </div>
+                    </div>
+                
+                    <!-- Rendered if sidebar right is enabled -->
+                    <!-- Sidebar right skeleton-->
+                    <div v-cloak class="fixed top-0 bottom-0 right-0 translate-x-full bg-sidebar-right-bg border-sidebar-right-border lg:sticky lg:border-l lg:shrink-0 lg:pt-6 lg:transform-none sm:w-1/2 lg:w-64 lg:z-0 md:w-104 sidebar-right skeleton">
+                        <div class="pl-5">
+                            <div class="w-32 h-3 mb-4 bg-skeleton-bg rounded-full loading"></div>
+                            <div class="w-48 h-3 mb-4 bg-skeleton-bg rounded-full loading"></div>
+                            <div class="w-40 h-3 mb-4 bg-skeleton-bg rounded-full loading"></div>
+                        </div>
+                    </div>
+                
+                    <!-- User should be able to hide sidebar right -->
+                    <doc-sidebar-right v-cloak></doc-sidebar-right>
+                </div>
+
+            </div>
+        </div>
+    
+        <doc-search-mobile></doc-search-mobile>
+        <doc-back-to-top></doc-back-to-top>
+    </div>
+
+
+    <div id="retype-overlay-target"></div>
+
+    <script data-cfasync="false">window.__DOCS__ = { "title": "Bug Hunting Methodology Part One", level: 2, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
+</body>
+</html>
