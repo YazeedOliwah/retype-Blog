@@ -11,19 +11,19 @@ branding:
 
 links:
   - text: Home
-    link: https://retype.com/guides/getting-started/
+    link: https://blackvirus.pages.dev/
     icon: Home 
     
   - text: Discord
-    link: https://retype.com/guides/getting-started/
+    link: https://discord.gg/2KsMBbCN
     icon: static/discord.png  
 
   - text: Twitter
-    link: https://retype.com/guides/getting-started/
+    link: https://x.com/Yazeed_oliwah
     icon: static/twitter.png  
 
   - text: Github
-    link: https://retype.com/guides/getting-started/
+    link: https://github.com/YazeedOliwah
     icon: static/Github.png 
 
 
