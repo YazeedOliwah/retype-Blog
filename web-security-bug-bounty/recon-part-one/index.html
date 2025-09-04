@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.11.0.810304360507">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.11.0.810304393589">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.11.0">
@@ -30,12 +30,12 @@
 
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
-    <link href="../../resources/css/retype.css?v=3.11.0.810304360507" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.11.0.810304393589" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=3.11.0.810304360507" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.11.0.810304393589" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=3.11.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.11.0.810304360507" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=3.11.0.810304360507" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.11.0.810304393589" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=3.11.0.810304393589" defer></script>
 </head>
 <body>
     <div id="retype-app" class="relative text-base antialiased text-base-text bg-base-bg font-body">
@@ -225,7 +225,7 @@
     </h1>
 </doc-anchor-target>
 <p><figure class="content-center">
-    <img src="img/f1zokkqx0aid7kq.jpg" alt="" class="rounded-image-rounded border-image-border border-image-border-width" />
+    <img src="../img/f1zokkqx0aid7kq.jpg" alt="" class="rounded-image-rounded border-image-border border-image-border-width" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -324,7 +324,7 @@
 <p>A small scope is all about honing in on a single domain or URL like <code v-pre>target.com</code> or <code v-pre>sub.target.com</code> with no wildcard or subdomain inclusion. This is your chance to go deep, not wide, with a targeted recon effort.</p>
 <p><strong>Example:</strong> <a href="https://bugcrowd.com/engagements/underarmour-corp">Under Armour Corp</a><br />
 <figure class="content-center">
-    <img src="img/underarm.png" alt="" class="rounded-image-rounded border-image-border border-image-border-width" />
+    <img src="../img/underarm.png" alt="" class="rounded-image-rounded border-image-border border-image-border-width" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -337,7 +337,7 @@
 <p>A medium scope steps it up with subdomains or a wildcard (e.g., <code v-pre>*.target.com</code>) and related assets. This calls for a broader approach, blending automation to cover ground with manual effort to dig into the good stuff.</p>
 <p><strong>Example:</strong> <a href="https://bugcrowd.com/engagements/justeattakeaway">Just Eat Takeaway</a><br />
 <figure class="content-center">
-    <img src="img/takeaway.png" alt="Just Eat Takeaway" class="rounded-image-rounded border-image-border border-image-border-width" />
+    <img src="../img/takeaway.png" alt="Just Eat Takeaway" class="rounded-image-rounded border-image-border border-image-border-width" />
     <figcaption class="caption">Just Eat Takeaway</figcaption>
 </figure>
 </p>
@@ -350,7 +350,7 @@
 <p>A large scope is the big leagues—covering an entire organization, including related domains, acquisitions, IPs, and assets. This is the broadest and most complex challenge, demanding heavy OSINT, automation, and some manual testing.</p>
 <p><strong>Example:</strong> <a href="https://bugcrowd.com/engagements/fis">Fisglobal</a><br />
 <figure class="content-center">
-    <img src="img/fis.png" alt="Fisglobal" class="rounded-image-rounded border-image-border border-image-border-width" />
+    <img src="../img/fis.png" alt="Fisglobal" class="rounded-image-rounded border-image-border border-image-border-width" />
     <figcaption class="caption">Fisglobal</figcaption>
 </figure>
 </p>
@@ -385,7 +385,7 @@
 <p>Start by hunting down the target’s ASN. Big organizations usually have their own, and you can sniff it out with tools like:</p>
 <ul>
 <li><a href="https://bgp.he.net/">bgp.he.net</a>: Search the company name (e.g., “Facebook”) to find their ASN (like <code v-pre>AS32934</code>).<br />
-<img src="img/asn1.png" alt="ASN Example" /></li>
+<img src="../img/asn1.png" alt="ASN Example" /></li>
 </ul>
 <doc-anchor-target id="step-2-extract-cidr-ranges">
     <h4>
@@ -396,8 +396,8 @@
 <p>Once you’ve got the ASN, grab the CIDR blocks. Tools like <code v-pre>bgp.he.net</code>, <code v-pre>whois</code>, or <code v-pre>asnmap</code> can pull these.</p>
 <ul>
 <li><p><a href="https://bgp.he.net/">bgp.he.net</a>: After searching the company name, click on the ASN number to find CIDRs.<br />
-<img src="img/asn2.png" alt="CIDR Example" /></p>
-<p><img src="img/asn3.png" alt="CIDR " /></p>
+<img src="../img/asn2.png" alt="CIDR Example" /></p>
+<p><img src="../img/asn3.png" alt="CIDR " /></p>
 </li>
 <li><p><a href="">whois</a>:</p>
 </li>
@@ -476,7 +476,7 @@
 <p>Let’s start with domain enumeration. First, you need to track down the target’s trade name (the official company name). Here’s how to nail it:</p>
 <ul>
 <li><p>Check the Main Website: Head to the target’s site, scroll to the footer, and look for the © symbol. It often lists the trade name (e.g., “© 2025 Target Corp”).<br />
-<img src="img/tradename.png" alt="Trade Name" /></p>
+<img src="../img/tradename.png" alt="Trade Name" /></p>
 </li>
 <li><p>Inspect the Certificate: Click the lock icon in your browser, select “Connection is secure,” then “View Certificate.” Check the “Organization” field for the trade name.</p>
 </li>
@@ -484,12 +484,12 @@
 <p>
 <figure>
     <div class="relative w-full mb-6 overflow-hidden pt-9/16">
-        <iframe class="w-full h-full border-0 absolute inset-0" src="img/tradename2.mp4" allowfullscreen></iframe>
+        <iframe class="w-full h-full border-0 absolute inset-0" src="../img/tradename2.mp4" allowfullscreen></iframe>
     </div>
 </figure>
 Now visit <a href="https://crt.sh/">crt.sh</a>, enter the trade name, copy the domains, and save them to <code v-pre>domain.txt</code>.</p>
 <p><figure class="content-center">
-    <img src="img/tradename.png" alt="Trade Name" class="rounded-image-rounded border-image-border border-image-border-width" />
+    <img src="../img/tradename.png" alt="Trade Name" class="rounded-image-rounded border-image-border border-image-border-width" />
     <figcaption class="caption">Trade Name</figcaption>
 </figure>
 </p>
