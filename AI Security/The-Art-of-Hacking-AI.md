@@ -7,6 +7,8 @@
 > Twitter : https://x.com/Yazeed_oliwah
 >
 > linkedin: https://www.linkedin.com/in/yazeed-alewah-a9005a347
+>
+> Medium link: https://medium.com/@yazeedeliwah/the-art-of-hacking-ai-chatbots-5ec611551874
 
 
 
